@@ -26,9 +26,9 @@ openpose_model_hd = OpenPose(0)
 parsing_model_hd = Parsing(0)
 ootd_model_hd = OOTDiffusionHD(0)
 
-openpose_model_dc = OpenPose(1)
-parsing_model_dc = Parsing(1)
-ootd_model_dc = OOTDiffusionDC(1)
+# openpose_model_dc = OpenPose(1)
+# parsing_model_dc = Parsing(1)
+# ootd_model_dc = OOTDiffusionDC(1)
 
 
 category_dict = ['upperbody', 'lowerbody', 'dress']
@@ -72,41 +72,41 @@ def process_hd(vton_img, garm_img, n_samples, n_steps, image_scale, seed):
 
     return images
 
-def process_dc(vton_img, garm_img, category, n_samples, n_steps, image_scale, seed):
-    model_type = 'dc'
-    if category == 'Upper-body':
-        category = 0
-    elif category == 'Lower-body':
-        category = 1
-    else:
-        category =2
+# def process_dc(vton_img, garm_img, category, n_samples, n_steps, image_scale, seed):
+#     model_type = 'dc'
+#     if category == 'Upper-body':
+#         category = 0
+#     elif category == 'Lower-body':
+#         category = 1
+#     else:
+#         category =2
 
-    with torch.no_grad():
-        garm_img = Image.open(garm_img).resize((768, 1024))
-        vton_img = Image.open(vton_img).resize((768, 1024))
-        keypoints = openpose_model_dc(vton_img.resize((384, 512)))
-        model_parse, _ = parsing_model_dc(vton_img.resize((384, 512)))
+#     with torch.no_grad():
+#         garm_img = Image.open(garm_img).resize((768, 1024))
+#         vton_img = Image.open(vton_img).resize((768, 1024))
+#         keypoints = openpose_model_dc(vton_img.resize((384, 512)))
+#         model_parse, _ = parsing_model_dc(vton_img.resize((384, 512)))
 
-        mask, mask_gray = get_mask_location(model_type, category_dict_utils[category], model_parse, keypoints)
-        mask = mask.resize((768, 1024), Image.NEAREST)
-        mask_gray = mask_gray.resize((768, 1024), Image.NEAREST)
+#         mask, mask_gray = get_mask_location(model_type, category_dict_utils[category], model_parse, keypoints)
+#         mask = mask.resize((768, 1024), Image.NEAREST)
+#         mask_gray = mask_gray.resize((768, 1024), Image.NEAREST)
         
-        masked_vton_img = Image.composite(mask_gray, vton_img, mask)
+#         masked_vton_img = Image.composite(mask_gray, vton_img, mask)
 
-        images = ootd_model_dc(
-            model_type=model_type,
-            category=category_dict[category],
-            image_garm=garm_img,
-            image_vton=masked_vton_img,
-            mask=mask,
-            image_ori=vton_img,
-            num_samples=n_samples,
-            num_steps=n_steps,
-            image_scale=image_scale,
-            seed=seed,
-        )
+#         images = ootd_model_dc(
+#             model_type=model_type,
+#             category=category_dict[category],
+#             image_garm=garm_img,
+#             image_vton=masked_vton_img,
+#             mask=mask,
+#             image_ori=vton_img,
+#             num_samples=n_samples,
+#             num_steps=n_steps,
+#             image_scale=image_scale,
+#             seed=seed,
+#         )
 
-    return images
+#     return images
 
 
 block = gr.Blocks().queue()
@@ -260,7 +260,7 @@ with block:
         seed_dc = gr.Slider(label="Seed", minimum=-1, maximum=2147483647, step=1, value=-1)
         
     ips_dc = [vton_img_dc, garm_img_dc, category_dc, n_samples_dc, n_steps_dc, image_scale_dc, seed_dc]
-    run_button_dc.click(fn=process_dc, inputs=ips_dc, outputs=[result_gallery_dc])
+    # run_button_dc.click(fn=process_dc, inputs=ips_dc, outputs=[result_gallery_dc])
 
 
 block.launch(server_name='0.0.0.0', server_port=7865)
